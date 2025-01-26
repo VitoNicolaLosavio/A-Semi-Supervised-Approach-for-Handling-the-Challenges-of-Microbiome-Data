@@ -7,7 +7,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.decomposition import PCA
 from sklearn.metrics import classification_report
 import matplotlib.pyplot as plt
-from Supervised_Autoencoder_SAE import sae, load_dataset
+from semi_supervised_autoencoder_ssae import ssae, load_dataset
 from keras import models
 import seaborn as sns
 
@@ -74,7 +74,7 @@ class Experimentor:
         results_df.to_csv(os.path.join(self.result_path, 'pca_rf_results.csv'), index=False)
         print(results_df)
 
-    def sae_experiment(self, encoding_shape0, encoding_shape1, alpha, latent_act):
+    def ssae_experiment(self, encoding_shape0, encoding_shape1, alpha, latent_act):
         skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
         mean_results = {'macro avg precision': [], 'macro avg recall': [], 'macro avg f1-score': [],
                         'weighted avg precision': [], 'weighted avg recall': [], 'weighted avg f1-score': []}
@@ -84,7 +84,7 @@ class Experimentor:
             X_train, X_val = self.X[train_index], self.X[test_index]
             y_train, y_val = self.y[train_index], self.y[test_index]
 
-            autoencoder = sae(input_shape=X_train.shape[1], encoder_shape0=encoding_shape0,
+            autoencoder = ssae(input_shape=X_train.shape[1], encoder_shape0=encoding_shape0,
                               encoder_shape1=encoding_shape1, alpha=alpha)
             history = autoencoder.fit(X_train, (X_train, y_train),
                                       validation_data=(X_val, (X_val, y_val)), epochs=200, batch_size=100, verbose=0)
@@ -102,7 +102,7 @@ class Experimentor:
             for metric in mean_results.keys():
                 mean_results[metric].append(report['macro avg'][metric.split()[-1]])
 
-            # Plotting SAE training and validation loss
+            # Plotting ssae training and validation loss
             plt.figure(figsize=(10, 8))
             sns.set(font_scale=2)
             sns.set_style("white")
@@ -153,7 +153,7 @@ if __name__ == "__main__":
 
     elif args.expname == "SAE":
         if args.encoding_shape0 is None or args.encoding_shape1 is None or args.alpha is None:
-            raise ValueError("Autoencoder dimensions and alpha must be provided for SAE experiment")
+            raise ValueError("Autoencoder dimensions and alpha must be provided for ssae experiment")
         exp.sae_experiment(encoding_shape0=args.encoding_shape0, encoding_shape1=args.encoding_shape1, alpha=args.alpha,
                            latent_act=args.latent_act)
 

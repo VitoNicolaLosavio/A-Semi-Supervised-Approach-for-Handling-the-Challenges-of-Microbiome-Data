@@ -52,13 +52,13 @@ def multiclass_classification_loss(y_true,y_pred):
         else:
             skipped += 1
     # mean of loss
-    mean_loss=total_loss/n_el
-    for _ in range(skipped):
-        total_loss += mean_loss
+    # mean_loss=total_loss/n_el
+    # for _ in range(skipped):
+    #    total_loss += mean_loss
 
     return total_loss
 
-def sae(input_shape,encoder_shape0,encoder_shape1,alpha, n_class=2):
+def ssae(input_shape,encoder_shape0,encoder_shape1,alpha, n_class=2):
     assert n_class >= 2, 'Number of classes must be greater than 2.'
 
     input = Input(shape=(input_shape,))
@@ -85,100 +85,6 @@ def sae(input_shape,encoder_shape0,encoder_shape1,alpha, n_class=2):
     if n_class == 2:
         model.compile(
             optimizer='adam',
-           loss={
-               'decoded_output': reconstruction_loss,
-               'classification_output': classification_loss
-           },
-           loss_weights={
-               'decoded_output': alpha,
-               'classification_output': 1 - alpha
-           },
-           metrics={
-               'decoded_output': tf.keras.metrics.MeanSquaredError(),
-               'classification_output': tf.keras.metrics.BinaryAccuracy()
-           }
-        )
-    else:
-        model.compile(
-            optimizer='adam',
-            loss={
-                'decoded_output': reconstruction_loss,
-                'classification_output': multiclass_classification_loss
-            },
-            loss_weights={
-                'decoded_output': alpha,
-                'classification_output': 1 - alpha
-            },
-            metrics={
-                'decoded_output': tf.keras.metrics.MeanSquaredError(),
-                'classification_output': tf.keras.metrics.CategoricalAccuracy()
-            }
-        )
-
-    return model
-
-def ssae_model(input_shape, encoder_shape0, encoder_shape1, alpha, n_class=2):
-    assert n_class >= 2, 'Number of classes must be greater than 2.'
-
-    inputs = Input(shape=(input_shape,))
-    encoder = layers.Dense(
-        encoder_shape0,
-        activation='relu',
-
-    )(inputs)
-    encoder = layers.Dense(
-        encoder_shape1,
-        activation='relu',
-
-    )(encoder)
-
-    latent_space = layers.Dense(
-        128,
-        activation='relu',
-        name='layer_reduced',
-    )(encoder)
-
-    decoder = layers.Dense(encoder_shape0, activation='relu')(latent_space)
-    decoder = layers.Dense(encoder_shape1, activation='relu')(decoder)
-    decoder = layers.Dense(input_shape, activation='relu', name='decoded_output')(decoder)
-
-
-    # Remove the dimension
-    attention_query = layers.Dense(64, activation='relu')(latent_space)  # Query
-    attention_query = layers.Dropout(0.7)(attention_query)
-    attention_value = layers.Dense(64, activation='relu')(inputs)  # Value
-    attention_value = layers.Dropout(0.7)(attention_value)
-    attention_query = expand_dims(attention_query, axis=1)
-
-    attention_value = expand_dims(attention_value, axis=1)
-    # Attention layer
-    attention_output = layers.Attention()([
-        attention_query,
-        attention_value
-    ])
-    classification = squeeze(attention_output, axis=1)
-
-    classification = layers.Dense(
-        64,
-        activation='relu',
-    )(classification)
-    classification = layers.Dropout(0.5)(classification)
-
-    if n_class == 2:
-        classification = layers.Dense(
-            1,
-            activation='sigmoid',
-            name='classification_output',
-        )(classification)
-    else:
-        classification = layers.Dense(n_class, activation='softmax', name='classification_output')(classification)
-
-    output = decoder, classification
-    model = models.Model(inputs=inputs, outputs=output)
-
-    if n_class == 2:
-        model.compile(
-            optimizer=optimizers.Adam(learning_rate=0.0001),
            loss={
                'decoded_output': reconstruction_loss,
                'classification_output': classification_loss
