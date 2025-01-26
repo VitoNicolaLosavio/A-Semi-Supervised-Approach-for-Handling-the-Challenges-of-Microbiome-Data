@@ -10,6 +10,9 @@ This project focuses on the semi-supervised classification of the human microbio
 2. **Semi-Supervised Autoencoder**  
    Development of a custom semi-supervised autoencoder to learn meaningful latent representations of the microbiome. The autoencoder combines labeled and unlabeled data, maximizing the utility of the available dataset.
 
+   ![Semi-Supervised Autoencoder Architecture](SemiSupervisedAutoencoder.png)    
+   *Figure 1: Semi-supervised autoencoder architecture used for feature extraction and representation learning.*
+
 3. **Classification with Random Forest**  
    Integration of Random Forest as the classification algorithm, leveraging the encoded latent space features for improved classification accuracy.
 
