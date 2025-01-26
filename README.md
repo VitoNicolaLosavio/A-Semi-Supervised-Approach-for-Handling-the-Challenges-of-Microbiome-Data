@@ -28,4 +28,4 @@ This semi-supervised approach proved effective in:
 The project demonstrates the potential of combining semi-supervised learning with Random Forest for solving complex problems in microbiome classification.
 
 
-This is an extension of the work done by: [SAE-microbiome](https://github.com/VeronicaButtaro98/SAE-microbiome.git)
+This is an extension of the work done by: dott.ssa Veronica Buttaro, [SAE-microbiome](https://github.com/VeronicaButtaro98/SAE-microbiome.git)
